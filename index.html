@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Surprise</title>
+
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+height:100vh;
+background:linear-gradient(135deg,#667eea,#764ba2);
+display:flex;
+justify-content:center;
+align-items:center;
+padding:20px;
+}
+
+.card{
+background:white;
+padding:30px;
+border-radius:15px;
+width:100%;
+max-width:400px;
+box-shadow:0 10px 30px rgba(0,0,0,0.2);
+text-align:center;
+}
+
+h2{
+margin-bottom:20px;
+color:#333;
+}
+
+input{
+width:100%;
+padding:12px;
+border-radius:8px;
+border:1px solid #ccc;
+margin-bottom:15px;
+font-size:16px;
+}
+
+button{
+width:100%;
+padding:12px;
+background:#667eea;
+border:none;
+color:white;
+font-size:16px;
+border-radius:8px;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+background:#5a67d8;
+}
+
+.details{
+margin-top:20px;
+text-align:left;
+background:#f4f6ff;
+padding:15px;
+border-radius:10px;
+display:none;
+}
+
+.details p{
+margin:5px 0;
+font-size:14px;
+color:#333;
+}
+
+.success{
+margin-top:10px;
+color:green;
+font-weight:bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>User Tracker</h2>
+
+<input type="text" id="name" placeholder="Enter your name">
+
+<button onclick="sendDetails()">Submit</button>
+
+<div id="success" class="success"></div>
+
+<div id="details" class="details"></div>
+
+</div>
+
+<script>
+
+(function(){
+emailjs.init("DU5lKALhNZ3Af-kyS");
+})();
+
+function sendDetails(){
+
+let name=document.getElementById("name").value;
+
+if(!name){
+alert("Please enter your name");
+return;
+}
+
+let details={
+name:name,
+time:new Date().toString(),
+browser:navigator.userAgent,
+platform:navigator.platform,
+screen:screen.width+" x "+screen.height,
+language:navigator.language,
+url:window.location.href
+};
+
+let params={
+name:details.name,
+time:details.time,
+browser:details.browser,
+platform:details.platform,
+screen:details.screen,
+language:details.language,
+url:details.url
+};
+
+emailjs.send("service_ezfk48i","template_vlioycv",params)
+.then(function(){
+
+document.getElementById("success").innerText="Details sent successfully";
+
+})
+.catch(function(error){
+
+console.log(error);
+
+});
+
+showDetails(details);
+
+}
+
+function showDetails(d){
+
+let html=`
+<p><b>Name:</b> ${d.name}</p>
+<p><b>Time:</b> ${d.time}</p>
+<p><b>Browser:</b> ${d.browser}</p>
+<p><b>Platform:</b> ${d.platform}</p>
+<p><b>Screen:</b> ${d.screen}</p>
+<p><b>Language:</b> ${d.language}</p>
+<p><b>Page URL:</b> ${d.url}</p>
+`;
+
+let box=document.getElementById("details");
+
+box.innerHTML=html;
+
+box.style.display="block";
+
+}
+
+</script>
+
+</body>
+</html>
