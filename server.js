@@ -10,21 +10,14 @@ const cron = require("node-cron");
 const nodemailer = require("nodemailer");
 const http = require("http");
 
-// 🔐 Transporter (Gmail)
+// 🔐 Transporter (FIXED - no service, use host)
 const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
-    }
-});
-
-// ✅ Verify SMTP connection
-transporter.verify((error) => {
-    if (error) {
-        console.error("❌ SMTP Error:", error);
-    } else {
-        console.log("✅ SMTP Ready");
     }
 });
 
@@ -150,22 +143,20 @@ cron.schedule("30 22 * * *", async () => {
     timezone: "Asia/Kolkata"
 });
 
-// 🧪 FORCE TEST EMAIL ON START (VERY IMPORTANT)
+// 🧪 START APP (FIXED - NO verify)
 async function startApp() {
     try {
         console.log("🚀 Starting application...");
 
-        // Verify SMTP first
-        await transporter.verify();
-        console.log("✅ SMTP Ready");
-
-        // Send test email
         console.log("🧪 Running test email...");
+
         await sendMail(
             "TEST EMAIL 🚀",
-            `Mailer working ✅
+            `Mailer working perfectly ✅
 
-Time: ${new Date().toString()}`
+Time: ${new Date().toString()}
+
+— Sachin`
         );
 
         console.log("🎉 Test email sent successfully");
@@ -176,7 +167,6 @@ Time: ${new Date().toString()}`
     }
 }
 
-// Start app properly
 startApp();
 
 // 🌐 Health Check Server (Render requirement)
