@@ -145,18 +145,33 @@ cron.schedule("30 22 * * *", async () => {
 });
 
 // 🧪 FORCE TEST EMAIL ON START (VERY IMPORTANT)
-(async () => {
-    console.log("🧪 Running test email...");
+async function startApp() {
+    try {
+        console.log("🚀 Starting application...");
 
-    await sendMail(
-        "TEST EMAIL 🚀",
-        `Your mailer is working perfectly ✅
+        // Verify SMTP first
+        await transporter.verify();
+        console.log("✅ SMTP Ready");
 
-Time: ${new Date().toString()}
+        // Send test email
+        console.log("🧪 Running test email...");
+        await sendMail(
+            "TEST EMAIL 🚀",
+            `Mailer working ✅
 
-— Sachin`
-    );
-})();
+Time: ${new Date().toString()}`
+        );
+
+        console.log("🎉 Test email sent successfully");
+
+    } catch (error) {
+        console.error("❌ Startup Error:", error);
+        await sendErrorMail(error);
+    }
+}
+
+// Start app properly
+startApp();
 
 // 🌐 Health Check Server (Render requirement)
 http.createServer((req, res) => {
