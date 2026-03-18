@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const cron = require("node-cron");
 const nodemailer = require("nodemailer");
+const http = require("http");
 
 // 🔐 Transporter (Gmail)
 const transporter = nodemailer.createTransport({
@@ -12,18 +13,74 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// ✅ Verify transporter at startup
+// ✅ Verify SMTP connection
 transporter.verify((error) => {
     if (error) {
-        console.error("SMTP Error:", error);
+        console.error("❌ SMTP Error:", error);
     } else {
-        console.log("SMTP Ready ✅");
+        console.log("✅ SMTP Ready");
     }
 });
 
-// 📧 Send Normal Mail
+// 💛 Random Messages
+const morningMessages = [
+`Good Morning ❤️
+
+I hope you woke up with a smile today 😊  
+Just wanted to remind you that you mean a lot to me.
+
+Have a beautiful day ahead 🌸
+
+— Sachin`,
+
+`Good Morning Love ❤️
+
+Another day, another reason to be thankful that you're in my life.  
+I hope your day is filled with happiness and smiles 😊
+
+— Yours, Sachin`,
+
+`Good Morning ☀️
+
+Wake up sleepyhead 😄  
+I wish I could be there to annoy you.
+
+Have an amazing day 💛
+
+— Sachin`
+];
+
+const nightMessages = [
+`Good Night ❤️
+
+I hope your day went well.  
+Now relax and let all stress go.
+
+Sleep peacefully 😴
+
+— Sachin`,
+
+`Good Night Love 🌙
+
+No matter how the day was, you're always special to me ❤️  
+
+Sweet dreams 😊
+
+— Yours, Sachin`,
+
+`Good Night 😄
+
+Stop using your phone and sleep 😄  
+Dream about me okay?
+
+— Sachin`
+];
+
+// 📧 Send Mail
 async function sendMail(subject, message) {
     try {
+        console.log("📤 Sending email...");
+
         const info = await transporter.sendMail({
             from: `"Sachin Rathod" <${process.env.EMAIL_USER}>`,
             to: process.env.TO_EMAIL,
@@ -31,7 +88,7 @@ async function sendMail(subject, message) {
             text: message
         });
 
-        console.log("✅ Mail sent:", info.messageId);
+        console.log("✅ Mail sent:", info.response);
 
     } catch (error) {
         console.error("❌ Mail Error:", error);
@@ -39,7 +96,7 @@ async function sendMail(subject, message) {
     }
 }
 
-// 🚨 Send Error Alert Mail
+// 🚨 Error Mail
 async function sendErrorMail(error) {
     try {
         await transporter.sendMail({
@@ -47,7 +104,7 @@ async function sendErrorMail(error) {
             to: process.env.ALERT_EMAIL,
             subject: "🚨 Mailer Error Alert",
             text: `
-Error occurred in scheduler:
+Error occurred:
 
 ${error.message}
 
@@ -63,54 +120,48 @@ ${error.stack}
     }
 }
 
-// 🌞 Morning Mail - 10:00 AM
+// 🌞 Morning Job
 cron.schedule("0 10 * * *", async () => {
-    console.log("⏰ Running Morning Job");
+    console.log("⏰ Morning Job Triggered");
 
-    const message = `
-Good Morning ❤️
+    const message = morningMessages[Math.floor(Math.random() * morningMessages.length)];
 
-I hope you woke up with a smile today 😊  
-Just wanted to remind you that you mean a lot to me.
+    await sendMail("Something from Sachin Rathod 💛", message);
 
-Have a beautiful day ahead 🌸
-
-— Sachin
-`;
-
-    await sendMail("Something from Sachin Rathod", message);
 }, {
     timezone: "Asia/Kolkata"
 });
 
-// 🌙 Night Mail - 10:30 PM
+// 🌙 Night Job
 cron.schedule("30 22 * * *", async () => {
-    console.log("⏰ Running Night Job");
+    console.log("⏰ Night Job Triggered");
 
-    const message = `
-Good Night ❤️
+    const message = nightMessages[Math.floor(Math.random() * nightMessages.length)];
 
-I hope your day went well.  
-Now it's time to relax and let all the stress go.
+    await sendMail("Something from Sachin Rathod 💛", message);
 
-Sleep peacefully and dream something beautiful 😴
-
-— Sachin
-`;
-
-    await sendMail("Something from Sachin Rathod", message);
 }, {
     timezone: "Asia/Kolkata"
 });
 
-// 🧠 Health Check (Optional endpoint for Render)
-const http = require("http");
+// 🧪 FORCE TEST EMAIL ON START (VERY IMPORTANT)
+(async () => {
+    console.log("🧪 Running test email...");
 
+    await sendMail(
+        "TEST EMAIL 🚀",
+        `Your mailer is working perfectly ✅
+
+Time: ${new Date().toString()}
+
+— Sachin`
+    );
+})();
+
+// 🌐 Health Check Server (Render requirement)
 http.createServer((req, res) => {
     res.writeHead(200);
     res.end("Mailer running...");
 }).listen(process.env.PORT || 3000);
 
 console.log("🚀 Scheduler started...");
-
-
