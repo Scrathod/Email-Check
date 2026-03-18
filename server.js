@@ -1,5 +1,11 @@
 require("dotenv").config();
 
+console.log("ENV CHECK:", {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS ? "SET" : "NOT SET",
+    to: process.env.TO_EMAIL
+});
+
 const cron = require("node-cron");
 const nodemailer = require("nodemailer");
 const http = require("http");
